@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpamGuard AI — Intelligent Message Classification</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="app-wrapper">
+        <!-- Background Ambient Glows -->
+        <div class="ambient-glow glow-1"></div>
+        <div class="ambient-glow glow-2"></div>
+
+        <!-- Top Navigation / Header -->
+        <header class="app-header">
+            <div class="header-brand">
+                <div class="brand-logo">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        <path d="m9 12 2 2 4-4"/>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <div class="brand-title-row">
+                        <h1>SpamGuard AI</h1>
+                        <span class="ml-badge">
+                            <span class="badge-dot"></span>
+                            Powered by Machine Learning
+                        </span>
+                    </div>
+                    <p class="subtitle">Intelligent Message Classification System</p>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <div class="system-status-indicator" id="systemStatusBadge" title="Pipeline Status">
+                    <span class="status-indicator-dot"></span>
+                    <span class="status-indicator-text">ML Model Active</span>
+                </div>
+                <button class="theme-toggle-btn" id="themeToggleBtn" aria-label="Toggle Theme" title="Toggle Light / Dark Mode">
+                    <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="4"/>
+                        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+                    </svg>
+                    <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="main-container">
+            <!-- Left / Input Column -->
+            <section class="card input-card">
+                <div class="card-header">
+                    <div class="section-title-wrap">
+                        <h2>Message Inspector</h2>
+                        <p class="section-desc">Paste an email, SMS, or notification message to evaluate its authenticity.</p>
+                    </div>
+                    <div class="quick-samples">
+                        <span class="samples-label">Test Samples:</span>
+                        <button type="button" class="sample-chip chip-spam" id="sampleSpamBtn" title="Load sample spam message">
+                            <span class="chip-icon">🚨</span> Spam Sample
+                        </button>
+                        <button type="button" class="sample-chip chip-ham" id="sampleHamBtn" title="Load sample legitimate message">
+                            <span class="chip-icon">✅</span> Legitimate Sample
+                        </button>
+                    </div>
+                </div>
+
+                <form id="classificationForm" class="classification-form">
+                    <div class="textarea-container">
+                        <textarea
+                            id="messageInput"
+                            name="message"
+                            rows="6"
+                            placeholder="Enter your email or SMS message here to check whether it is spam..."
+                            maxlength="5000"
+                            required
+                        ></textarea>
+                        
+                        <div class="textarea-footer">
+                            <button type="button" class="btn-text-clear" id="clearTextBtn" title="Clear message">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18 6 6 18M6 6l12 12"/>
+                                </svg>
+                                Clear
+                            </button>
+                            <div class="char-count-wrap">
+                                <span id="charCount">0</span> / 5,000 characters
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Error Alert Banner -->
+                    <div id="errorBanner" class="alert alert-error hidden" role="alert">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="8" x2="12" y2="12"/>
+                            <line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+                        <span id="errorMessage">An error occurred while processing the message.</span>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" id="analyzeBtn" class="btn-primary">
+                            <span class="btn-text">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polygon points="5 3 19 12 5 21 5 3"/>
+                                </svg>
+                                Analyze Message
+                            </span>
+                            <span class="spinner hidden" id="loadingSpinner"></span>
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Right / Results Column -->
+            <section class="card result-card" id="resultContainer">
+                <div class="card-header">
+                    <div class="section-title-wrap">
+                        <h2>Analysis Result</h2>
+                        <p class="section-desc">Machine Learning classification & confidence assessment.</p>
+                    </div>
+                </div>
+
+                <!-- Initial Idle Placeholder -->
+                <div class="result-idle-state" id="idleState">
+                    <div class="idle-illustration">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                            <line x1="12" y1="22.08" x2="12" y2="12"/>
+                        </svg>
+                    </div>
+                    <h3>Awaiting Input</h3>
+                    <p>Enter a message and click <strong>Analyze Message</strong> to see real-time AI classification metrics.</p>
+                </div>
+
+                <!-- Active Result Display (Hidden initially) -->
+                <div class="result-active-state hidden" id="activeResult">
+                    <!-- Status Banner -->
+                    <div class="verdict-banner" id="verdictBanner">
+                        <div class="verdict-icon-box" id="verdictIcon">
+                            <!-- Injected by JS -->
+                        </div>
+                        <div class="verdict-info">
+                            <div class="verdict-label-row">
+                                <span class="verdict-tag" id="verdictTag">SPAM</span>
+                                <span class="confidence-pill" id="confidencePill">99.8% Match</span>
+                            </div>
+                            <p class="verdict-explanation" id="verdictExplanation">Warning: This message appears to be potentially spam.</p>
+                        </div>
+                    </div>
+
+                    <!-- Metric Cards Grid -->
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <span class="metric-label">Prediction Verdict</span>
+                            <span class="metric-value highlight" id="metricVerdict">SPAM</span>
+                        </div>
+                        <div class="metric-card">
+                            <span class="metric-label">Confidence Score</span>
+                            <span class="metric-value" id="metricConfidence">99.8%</span>
+                        </div>
+                    </div>
+
+                    <!-- Confidence Progress Bar -->
+                    <div class="confidence-section">
+                        <div class="progress-label-row">
+                            <span class="progress-title">Classification Confidence</span>
+                            <span class="progress-percent" id="progressPercentLabel">99.8%</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Class Probability Breakdown -->
+                    <div class="probabilities-box">
+                        <h4>Probability Breakdown</h4>
+                        <div class="prob-row">
+                            <span class="prob-name">Spam Likelihood</span>
+                            <div class="prob-bar-container">
+                                <div class="prob-bar-fill spam-fill" id="spamProbBar" style="width: 0%;"></div>
+                            </div>
+                            <span class="prob-value" id="spamProbVal">0.0%</span>
+                        </div>
+                        <div class="prob-row">
+                            <span class="prob-name">Legitimate (Ham)</span>
+                            <div class="prob-bar-container">
+                                <div class="prob-bar-fill ham-fill" id="hamProbBar" style="width: 0%;"></div>
+                            </div>
+                            <span class="prob-value" id="hamProbVal">0.0%</span>
+                        </div>
+                    </div>
+
+                    <!-- NLP Cleaned Preprocessing Info -->
+                    <div class="nlp-details-box">
+                        <div class="nlp-details-header">
+                            <span class="nlp-title">NLP Processed Tokens:</span>
+                            <button type="button" class="btn-copy-tokens" id="copyTokensBtn" title="Copy processed tokens">Copy</button>
+                        </div>
+                        <div class="cleaned-tokens-code" id="cleanedTokens">
+                            <!-- Tokens injected here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>© 2026 SpamGuard AI • Built with FastAPI, Scikit-learn MultinomialNB & CountVectorizer</p>
+        </footer>
+    </div>
+
+    <!-- Main JavaScript -->
+    <script src="/static/script.js"></script>
+</body>
+</html>

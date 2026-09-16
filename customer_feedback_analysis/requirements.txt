@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+scikit-learn
+joblib
+jinja2
+python-multipart
+spacy
+pydantic
+pandas
+numpy
+regex
